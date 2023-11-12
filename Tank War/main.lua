@@ -132,7 +132,6 @@ function love.update(dt)
     end
 
     mousex, mousey = love.mouse.getPosition()
-    --player.Rotation = math.atan2((mousey - (player.y )), (mousex - player.x))
 
     if love.keyboard.isDown('escape') then
         love.event.quit()
