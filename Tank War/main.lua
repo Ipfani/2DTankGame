@@ -72,7 +72,6 @@ function love.load()
     contPosx =  love.graphics.getWidth()/2 - contW/2
     contPosy = love.graphics.getHeight()/2 - contH/2
     
-
     player = {}
     groups = {}
 
