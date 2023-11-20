@@ -20,6 +20,28 @@ local gameState = 0
 
 local lastSpawnTime = 0
 
+local  player = {
+    x = (love.graphics.getWidth()/2 ),
+    y = (love.graphics.getHeight()/2),
+    velocity = 100,
+    Rotation = 0,
+    Score = 0,
+    life = 100,
+    isMoving = false,
+    sprite = love.graphics.newImage('/sprites/player.png'),
+    tankSound = love.audio.newSource("/sound/smartsound_TRANSPORTATION_TANK_Small_Tracks_Rattle_Slow_01.mp3", "static")
+
+}
+
+--New Bullet
+local bullet ={
+    x = player.x + player.sprite:getWidth()/2,
+    y = player.y + player.sprite:getHeight()/2,
+    vx = 0,
+    vy = 0,
+    speed = 500,
+}
+
 --moving text on menu
 --It will be moving around
 change = -1
@@ -72,7 +94,6 @@ function love.load()
     contPosx =  love.graphics.getWidth()/2 - contW/2
     contPosy = love.graphics.getHeight()/2 - contH/2
     
-    player = {}
     groups = {}
 
     maximumEnemies = 2 --Two enemies at a time
@@ -82,20 +103,10 @@ function love.load()
     backGroundTank = love.audio.newSource("/sound/zapsplat_warfare_tank_matilda_mrk_2_1939_start_up_engine_rev_idle_int_hanger_onboard_ext_pers_25203.mp3", "static")
     drumsMusic = love.audio.newSource("/sound/mixkit-drums-of-war-2784.wav", "static")
 
-    player.sprite = love.graphics.newImage('/sprites/player.png')
     myEnemy = love.graphics.newImage('/sprites/enemy.png')
     background = love.graphics.newImage('/sprites/outdoors-cobblestone-texture.jpg')
     menuBackground = love.graphics.newImage('/sprites/background.png')
     
-    player.x = (love.graphics.getWidth()/2 )
-    player.y = (love.graphics.getHeight()/2)
-    player.velocity = 100
-    player.Rotation = 0
-    player.Score = 0
-    player.life = 100
-    player.isMoving = false
-    player.tankSound = love.audio.newSource("/sound/smartsound_TRANSPORTATION_TANK_Small_Tracks_Rattle_Slow_01.mp3", "static")
-
     groups.largeExplosion = love.graphics.newImage('/sprites/bigexplosive.png')
     groups.largeExplosionGrid = animator.newGrid(256,256,groups.largeExplosion:getWidth(), groups.largeExplosion:getHeight())
 
@@ -106,8 +117,19 @@ function love.load()
 
 end
 
-
 function love.update(dt)
+
+    --New Bullet
+    --Update Bullet
+    bullet.x = bullet.x + bullet.vx*dt;
+    bullet.y = bullet.y + bullet.vy*dt;
+    if love.keyboard.isDown('space') then
+        --New Bullet
+        bullet.x = player.x + 10 * math.cos(player.Rotation)
+        bullet.y = player.y + 10 * math.sin(player.Rotation)
+        bullet.vx = bullet.speed * math.cos(player.Rotation)
+        bullet.vy = bullet.speed * math.sin(player.Rotation)
+    end
 
     --Shift around Press Enter to continue
     if gameState == 0 then
@@ -296,6 +318,9 @@ function love.draw()
             love.graphics.rectangle('fill', 0, 50*i, enemy.life, 20)
             love.graphics.print("Enemy life", 0, 50*i + 30)
         end
+
+    --New Bullet
+		love.graphics.circle("fill",bullet.x, bullet.y, 5)
 
     end
     
