@@ -29,18 +29,16 @@ local  player = {
     life = 100,
     isMoving = false,
     sprite = love.graphics.newImage('/sprites/player.png'),
-    tankSound = love.audio.newSource("/sound/smartsound_TRANSPORTATION_TANK_Small_Tracks_Rattle_Slow_01.mp3", "static")
+    tankSound = love.audio.newSource("/sound/smartsound_TRANSPORTATION_TANK_Small_Tracks_Rattle_Slow_01.mp3", "static"),
+    
+    bullet_x = player.x + player.sprite:getWidth()/2,
+    bullet_y = player.y + player.sprite:getHeight()/2,
+    bulletvelocity_x = 0,
+    bulletvelocity_y = 0,
+    bullet_speed = 500 
 
 }
 
---New Bullet
-local bullet ={
-    x = player.x + player.sprite:getWidth()/2,
-    y = player.y + player.sprite:getHeight()/2,
-    vx = 0,
-    vy = 0,
-    speed = 500,
-}
 
 --moving text on menu
 --It will be moving around
@@ -63,6 +61,16 @@ function newEnemy(image)
   enemy.tankSound = love.audio.newSource("/sound/smartsound_TRANSPORTATION_TANK_Small_Tracks_Rattle_Slow_01.mp3", "static")
   enemy.Rotation = math.atan2(((player.y + player.sprite:getWidth()/2 ) - enemy.y), (player.x + player.sprite:getHeight()/2) - enemy.x)
   enemy.distance = math.sqrt((enemy.y - player.y)^2.0 + (enemy.x - player.x)^2.0)
+
+  --Lets think of adding bullets
+  --New Bullet
+  enemy.bulletx = enemy.x  + enemy.sprite:getWidth()/2
+  enemy.bullety = enemy.y + enemy.sprite:getHeight()/2
+  enemy.bulletvelocity_x = 0
+  enemy.bulletvelocity_y = 0
+  enemy.bulletspeed = 500
+
+
   table.insert(enemies, enemy)
 end
 
@@ -121,15 +129,30 @@ function love.update(dt)
 
     --New Bullet
     --Update Bullet
-    bullet.x = bullet.x + bullet.vx*dt;
-    bullet.y = bullet.y + bullet.vy*dt;
+    player.bullet_x = player.bullet_x + player.bulletvelocity_x*dt;
+    player.bullet_y = player.bullet_y + player.bulletvelocity_y*dt;
     if love.keyboard.isDown('space') then
         --New Bullet
-        bullet.x = player.x + 10 * math.cos(player.Rotation)
-        bullet.y = player.y + 10 * math.sin(player.Rotation)
-        bullet.vx = bullet.speed * math.cos(player.Rotation)
-        bullet.vy = bullet.speed * math.sin(player.Rotation)
+        player.bullet_x = player.x + 10 * math.cos(player.Rotation)
+        player.bullet_y = player.y + 10 * math.sin(player.Rotation)
+        player.bulletvelocity_x = player.bullet_speed * math.cos(player.Rotation)
+        player.bulletvelocity_y = player.bullet_speed * math.sin(player.Rotation)
     end
+
+    for i=#enemies, 1, -1 do
+        local enemy = enemies[i]
+        enemy.bulletx = enemy.bulletx + enemy.bulletvelocity_x*dt;
+        enemy.bullety = enemy.bullety + enemy.bulletvelocity_y*dt;
+        if enemy.distance < 300 then
+            --New Bullet
+            enemy.bulletx = enemy.x + 10 * math.cos(enemy.Rotation)
+            enemy.bullety = enemy.y + 10 * math.sin(enemy.Rotation)
+            enemy.bulletvelocity_x = enemy.bulletspeed * math.cos(enemy.Rotation)
+            enemy.bulletvelocity_y = enemy.bulletspeed * math.sin(enemy.Rotation)
+        end
+
+    end
+
 
     --Shift around Press Enter to continue
     if gameState == 0 then
@@ -317,10 +340,11 @@ function love.draw()
             love.graphics.draw(enemy.sprite, enemy.x, enemy.y, enemy.Rotation, 1, 1, enemy.sprite:getWidth()/2,  enemy.sprite:getHeight()/2 )
             love.graphics.rectangle('fill', 0, 50*i, enemy.life, 20)
             love.graphics.print("Enemy life", 0, 50*i + 30)
+            love.graphics.circle("fill",enemy.bulletx, enemy.bullety, 5)
         end
 
-    --New Bullet
-		love.graphics.circle("fill",bullet.x, bullet.y, 5)
+        --New Bullet
+		love.graphics.circle("fill",player.bullet_x, player.bullet_y, 5)   
 
     end
     
